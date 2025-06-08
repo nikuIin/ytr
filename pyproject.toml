@@ -1,44 +1,12 @@
-[tool.poetry]
+[project]
 name = "ytr"
-version = "0"
-description = "Yandex.Translate prompt"
-authors = ["Lev Vereshchagin <mail@vrslev.com>"]
-license = "MIT"
+version = "0.1.0"
+description = "Add your description here"
 readme = "README.md"
-repository = "https://github.com/vrslev/ytr"
-keywords = ["cli", "yandex", "translate", "yandex-translate", "translate-api"]
-classifiers = [
-  "Development Status :: 3 - Alpha",
-  "Programming Language :: Python :: Implementation :: CPython",
-  "Natural Language :: English",
-  "Natural Language :: Russian",
-  "Typing :: Typed"
+requires-python = ">=3.13"
+dependencies = [
+    "click>=8.2.1",
+    "httpx>=0.28.1",
+    "rich>=14.0.0",
+    "typer>=0.16.0",
 ]
-
-[tool.poetry.dependencies]
-python = "~3.10"
-httpx = "0.23.0"
-rich = "12.5.1"
-typer = "0.6.1"
-
-[tool.poetry.dev-dependencies]
-black = "22.6.0"
-pre-commit = "2.20.0"
-pytest = "7.1.2"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-ytr = "ytr:main"
-
-[tool.pyright]
-typeCheckingMode = "strict"
-reportPrivateUsage = false
-
-[tool.isort]
-profile = "black"
-
-[tool.poetry-version-plugin]
-source = "git-tag"
