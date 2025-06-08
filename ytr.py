@@ -1,6 +1,16 @@
+# /// script
+# requires-python = ">=3.13"
+# dependencies = [
+#   "httpx",
+#   "click",
+#   "rich",
+#   "typer"
+# ]
+# ///
+
+
 import uuid
 from typing import Any, TypedDict
-
 import click
 import httpx
 import rich
@@ -23,7 +33,7 @@ def get_client(transport: httpx.BaseTransport | None = None) -> httpx.Client:
             "User-Agent": "ru.yandex.translate/3.20.2024",
         },
         event_hooks={"response": [_raise_for_status_hook]},
-        transport=transport,  # pyright: ignore[reportGeneralTypeIssues]
+        transport=transport,
     )
 
 
@@ -42,9 +52,7 @@ def _parse_detect_response(response: dict[str, Any]) -> str:
 
 def detect(client: httpx.Client, languages: LangPair, text: str) -> str:
     params = _get_detect_params(languages=languages, text=text)
-    response = client.get(  # pyright: ignore[reportUnknownMemberType]
-        "/detect", params=params
-    ).json()
+    response = client.get("/detect", params=params).json()
     return _parse_detect_response(response)
 
 
@@ -65,16 +73,13 @@ def _parse_translate_response(response: dict[str, Any]) -> str:
 def translate(client: httpx.Client, from_: str, to: str, text: str) -> str:
     params = _get_translate_params(from_=from_, to=to)
     form = _get_translate_form_data(text=text)
-    response = client.post(  # pyright: ignore[reportUnknownMemberType]
-        "/translate", params=params, data=form
-    ).json()
+    response = client.post("/translate", params=params, data=form).json()
     return _parse_translate_response(response)
 
 
 def _resolve_destination_lang(languages: LangPair, from_: str) -> str:
     if from_ not in languages:
         return languages[1]
-
     return languages[1] if languages[0] == from_ else languages[0]
 
 
@@ -106,12 +111,21 @@ def _run_once(languages: LangPair, client: httpx.Client, console: Console) -> No
     console.print(Panel.fit(f"[bold][yellow]{response['translated']}[/yellow][/bold]"))
 
 
-def _run(hints: LangPair = ("en", "ru")) -> None:
+def _run(hints: LangPair = ("en", "ru"), word: str = typer.Option(None, "-w")) -> None:
     client = get_client()
     console = rich.get_console()
 
-    while True:
-        _run_once(languages=hints, client=client, console=console)
+    if word:
+        try:
+            response = detect_and_translate(client=client, languages=hints, text=word)
+            print(response["translated"])
+        except Exception as e:
+            print(f"Error: {str(e)}")
+        finally:
+            client.close()
+    else:
+        while True:
+            _run_once(languages=hints, client=client, console=console)
 
 
 def main() -> None:
